@@ -35,6 +35,11 @@
   padding: 1rem 0;
   width: 10rem;
   color: $c-light;
+  transform: translate3d(-2rem, 0, 0);
+  opacity: 0;
+  transition: transform .4s, opacity .4s;
+  transition-delay: .4s;
+  transition-timing-function: cubic-bezier(0,.9,.66,1);
 
   @media (min-width: $stop-scaling) {
     top: -5px;
@@ -62,6 +67,11 @@
     .page-header--menu-opened & {
       color: $c-dark;
     }
+  }
+
+  .loaded & {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
   }
 
   svg {
@@ -177,6 +187,10 @@
   font-size: 1.2rem;
   line-height: 1.0418;
   color: $c-light;
+  opacity: 0;
+  transition: opacity .4s;
+  transition-delay: .8s;
+  transition-timing-function: cubic-bezier(0,.9,.66,1);
 
   @media (min-width: $stop-scaling) {
     font-size: 12px;
@@ -193,7 +207,9 @@
     font-size: 1.4rem;
     color: $c-dark;
   }
-
+  .loaded & {
+    opacity: 1;
+  }
   ul {
     @include list-reset;
     display: flex;

@@ -21,7 +21,9 @@
   height: 4rem;
   color: $c-dark;
   border-radius: 50%;
-  transition: color .4s;
+  transition: color .4s, opacity .4s;
+  transition-delay: 1s;
+  opacity: 0;
 
   @media (max-width: $tablet) and (orientation: portrait) {
     display: none;
@@ -41,6 +43,45 @@
     border: 2px solid $c-light;
     z-index: -1;
     transition: width .4s, height .4s, background-color .4s, border-color .4s;
+  }
+
+  .loaded & {
+    animation-name: togglerLoaded;
+    animation-duration: .6s;
+    animation-fill-mode: backwards;
+    animation-delay: 1.2s;
+    animation-timing-function: cubic-bezier(.9,.01,1,.37);
+    opacity: 1;
+
+    &::before {
+      animation-name: togglerBackLoaded;
+      animation-duration: .6s;
+      animation-delay: 1.2s;
+      animation-fill-mode: backwards;
+      animation-timing-function: cubic-bezier(0,.9,.66,1);
+    }
+  }
+
+  @keyframes togglerLoaded {
+    from {
+      color: $c-purple;
+    }
+    to {
+      color: $c-dark;
+    }
+  }
+
+  @keyframes togglerBackLoaded {
+    from {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    to {
+      opacity: 1;
+      width: 100%;
+      height: 100%;
+    }
   }
 
   svg {
