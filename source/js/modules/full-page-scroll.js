@@ -40,10 +40,29 @@ export default class FullPageScroll {
   }
 
   changeVisibilityDisplay() {
-    this.screenElements.forEach((screen) => {
-      screen.classList.add(`screen--hidden`);
-      screen.classList.remove(`active`);
+    const active = this.screenElements[this.activeScreen];
+    const screenBackground = document.querySelector('.screen-background');
+    let prevActive = this.screenElements[0];
+    this.screenElements.forEach((screen) => { //сохраняю в переменную предыдущий активный экран
+      if (screen.classList.contains('active')) prevActive = screen;
     });
+    if (prevActive.classList.contains('screen--story') && active.classList.contains('screen--prizes')) {
+      setTimeout(() => {
+        this.screenElements.forEach((screen) => {
+          if (screen !== active) {
+            screen.classList.add(`screen--hidden`);
+            screen.classList.remove(`active`);
+          }
+        })
+      }, 400);
+      screenBackground.classList.add('screen-background--active');
+    } else {
+      this.screenElements.forEach((screen) => {
+        screen.classList.add(`screen--hidden`);
+        screen.classList.remove(`active`);
+      });
+      screenBackground.classList.remove('screen-background--active');
+    }
     this.screenElements[this.activeScreen].classList.remove(`screen--hidden`);
     this.screenElements[this.activeScreen].classList.add(`active`);
   }
