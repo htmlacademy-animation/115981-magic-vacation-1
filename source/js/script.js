@@ -10,6 +10,7 @@ import social from './modules/social.js';
 import body from './modules/body.js';
 import rules from './modules/rules.js';
 import FullPageScroll from './modules/full-page-scroll';
+import PerLetterAnim from './modules/per-letter-anim';
 
 // init modules
 mobileHeight();
@@ -25,3 +26,13 @@ rules();
 
 const fullPageScroll = new FullPageScroll();
 fullPageScroll.init();
+
+const animationIntroTitle = new PerLetterAnim(`.intro__title`, 500, `per-letter-anim--active`, `transform`);
+setTimeout(()=>{
+  animationIntroTitle.runAnimation();
+}, 800);
+
+const animationIntroDate = new PerLetterAnim(`.intro__date`, 500, `per-letter-anim--active`, `transform`);
+setTimeout(()=>{
+  animationIntroDate.runAnimation();
+}, 1400);
