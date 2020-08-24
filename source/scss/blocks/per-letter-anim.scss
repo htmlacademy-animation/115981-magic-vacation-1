@@ -1,0 +1,16 @@
+.per-letter-anim {
+  &__word {
+    overflow: hidden;
+    display: inline-block; 
+  }
+
+  &__word > span {
+    padding-top: 2rem;
+    transform: translate3d(0, 100%, 0);
+    display: inline-block;
+  }
+
+  &--active &__word > span {
+    transform: translate3d(0, 0, 0);
+  }
+}
