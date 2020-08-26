@@ -168,6 +168,15 @@
   width: 4rem;
   height: 4rem;
   color: $c-dark;
+  animation-name: sliderControlRotate;
+  animation-duration: .6s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(.5,0,.5,1.5);
+  animation-play-state: paused;
+
+  .active & {
+    animation-play-state: running;
+  }
 
   @media (min-width: $stop-scaling) {
     width: 40px;
@@ -231,6 +240,24 @@
   &.swiper-button-disabled {
     opacity: 0.5;
     pointer-events: none;
+  }
+  &--next {
+    --translate: 4rem;
+    --rotate: 90deg;
+  }
+  &--prev {
+    --translate: -4rem;
+    --rotate: -90deg;
+  }
+
+  @keyframes sliderControlRotate {
+    from {
+      opacity: 0;
+      transform: translateX(var(--translate)) rotate(var(--rotate));
+    } to {
+      opacity: 1;
+      transform: translateX(0) rotate(0);
+    }
   }
 }
 
