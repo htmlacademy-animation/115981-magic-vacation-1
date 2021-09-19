@@ -11,6 +11,7 @@ import body from './modules/body.js';
 import rules from './modules/rules.js';
 import FullPageScroll from './modules/full-page-scroll';
 import PerLetterAnim from './modules/per-letter-anim';
+import prizeAnimation from './modules/prize-animation';
 
 // init modules
 mobileHeight();
@@ -23,6 +24,7 @@ form();
 social();
 body();
 rules();
+prizeAnimation(`primaryAwardBegin`);
 
 const fullPageScroll = new FullPageScroll();
 fullPageScroll.init();
