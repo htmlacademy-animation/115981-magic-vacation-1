@@ -24,7 +24,7 @@ form();
 social();
 body();
 rules();
-prizeAnimation(`primaryAwardBegin`);
+prizeAnimation(`primaryAwardBegin`, `secondaryAwardBegin`);
 
 const fullPageScroll = new FullPageScroll();
 fullPageScroll.init();
