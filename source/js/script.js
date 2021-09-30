@@ -12,6 +12,7 @@ import rules from './modules/rules.js';
 import FullPageScroll from './modules/full-page-scroll';
 import PerLetterAnim from './modules/per-letter-anim';
 import prizeAnimation from './modules/prize-animation';
+import counter from './modules/counter';
 
 // init modules
 mobileHeight();
@@ -25,6 +26,7 @@ social();
 body();
 rules();
 prizeAnimation(`primaryAwardBegin`, `secondaryAwardBegin`, `additionalAwardBegin`);
+counter(5);
 
 const fullPageScroll = new FullPageScroll();
 fullPageScroll.init();
