@@ -106,7 +106,6 @@
 
 .prizes__item {
   margin-left: 7.5rem;
-
   @media (min-width: $stop-scaling) {
     margin-left: 75px;
   }
@@ -188,6 +187,9 @@
         width: 7rem;
       }
     }
+    .prizes__desc b {
+      width: 63px;
+    }
   }
 
   &--codes {
@@ -213,6 +215,10 @@
       @media (max-width: $mobile) and (orientation: landscape) {
         width: 10rem;
       }
+    }
+    .prizes__desc b {
+      width: 217px;
+      text-align: right;
     }
   }
 }

@@ -13,6 +13,7 @@ import FullPageScroll from './modules/full-page-scroll';
 import PerLetterAnim from './modules/per-letter-anim';
 import prizeAnimation from './modules/prize-animation';
 import counter from './modules/counter';
+import prizeCounter from './modules/prize-counter';
 
 // init modules
 mobileHeight();
@@ -27,6 +28,8 @@ body();
 rules();
 prizeAnimation(`primaryAwardBegin`, `secondaryAwardBegin`, `additionalAwardBegin`);
 counter(5);
+prizeCounter(`cases`, 1, 7);
+prizeCounter(`codes`, 11, 900);
 
 const fullPageScroll = new FullPageScroll();
 fullPageScroll.init();
