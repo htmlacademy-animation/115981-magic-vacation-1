@@ -1,4 +1,5 @@
 import winPrimary from "./win-primary";
+import lose from "./lose";
 
 export default () => {
   let showResultEls = document.querySelectorAll(`.js-show-result`);
@@ -22,6 +23,9 @@ export default () => {
         targetEl[0].classList.remove(`screen--hidden`);
         if (targetEl[0].id === `result`) {
           winPrimary();
+        }
+        if (targetEl[0].id === `result3`) {
+          lose();
         }
         resultHeaderAnim.forEach((anim) => anim.beginElement());
       });

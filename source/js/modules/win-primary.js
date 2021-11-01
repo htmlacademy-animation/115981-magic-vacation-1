@@ -40,6 +40,7 @@ const walrusAnim = [
 ];
 
 const winPrimaryScene = {
+  sceneId: `win-primary-scene`,
   objects: {
     airplane: {
       image: `${pathToFiles}/${files.airplane}`,

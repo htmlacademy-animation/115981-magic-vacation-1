@@ -3,7 +3,7 @@ import _ from '../helpers/easings';
 const scene2d = (scene) => {
   const ww = window.innerWidth;
   const wh = window.innerHeight;
-  const canvas = document.getElementById(`win-primary-scene`);
+  const canvas = document.getElementById(scene.sceneId);
   const ctx = canvas.getContext(`2d`);
   const images = {};
   const size = Math.min(ww, wh);
@@ -168,9 +168,8 @@ const scene2d = (scene) => {
   };
 
   const drawPrimitive = (primitive) => {
-    const b = primitives.trail;
 
-    if (b.opacity === 0) {
+    if (primitive.opacity === 0) {
       return;
     }
 
