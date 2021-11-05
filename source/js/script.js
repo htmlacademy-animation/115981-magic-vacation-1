@@ -14,6 +14,7 @@ import PerLetterAnim from './modules/per-letter-anim';
 import prizeAnimation from './modules/prize-animation';
 import counter from './modules/counter';
 import prizeCounter from './modules/prize-counter';
+import animationScreen from './modules/animation-screen';
 
 // init modules
 mobileHeight();
@@ -30,6 +31,7 @@ prizeAnimation(`primaryAwardBegin`, `secondaryAwardBegin`, `additionalAwardBegin
 counter(5);
 prizeCounter(`cases`, 1, 7);
 prizeCounter(`codes`, 11, 900);
+animationScreen();
 
 const fullPageScroll = new FullPageScroll();
 fullPageScroll.init();
