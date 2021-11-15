@@ -26,7 +26,38 @@ const animationScreen = () => {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-  const getMaterial = (texture) => new THREE.MeshBasicMaterial({color: 0xFFFFFF, map: texture});
+  const getMaterial = (texture) => new THREE.RawShaderMaterial({
+    uniforms: {
+      map: {
+        value: texture,
+      },
+    },
+    vertexShader: `
+      uniform mat4 projectionMatrix;
+      uniform mat4 modelMatrix;
+      uniform mat4 viewMatrix;
+
+      attribute vec3 position;
+      attribute vec3 normal;
+      attribute vec2 uv;
+
+      varying vec2 vUv;
+
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+      }`,
+
+    fragmentShader: `
+      precision mediump float;
+      uniform sampler2D map;
+      varying vec2 vUv;
+      void main() {
+        vec4 texel = texture2D( map, vUv );
+        gl_FragColor = texel;
+      }`
+  });
+
   const getPlaneLayer = (material, width, height) => {
     const geometry = new THREE.PlaneBufferGeometry(width, height);
     return new THREE.Mesh(geometry, material);
