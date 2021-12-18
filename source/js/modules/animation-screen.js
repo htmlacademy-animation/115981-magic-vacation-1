@@ -26,51 +26,66 @@ const animationScreen = () => {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-  const getMaterial = (texture, hueAngle = 0) => new THREE.RawShaderMaterial({
-    uniforms: {
-      map: {
-        value: texture,
+  const getMaterial = (texture, uniforms = {}) => {
+    const parameters = {
+      uniforms: {
+        map: {
+          value: texture,
+        },
       },
-      hueAngle: {
-        value: hueAngle,
-      }
-    },
-    vertexShader: `
-      uniform mat4 projectionMatrix;
-      uniform mat4 modelMatrix;
-      uniform mat4 viewMatrix;
+      vertexShader: `
+        uniform mat4 projectionMatrix;
+        uniform mat4 modelMatrix;
+        uniform mat4 viewMatrix;
 
-      attribute vec3 position;
-      attribute vec3 normal;
-      attribute vec2 uv;
+        attribute vec3 position;
+        attribute vec3 normal;
+        attribute vec2 uv;
 
-      varying vec2 vUv;
+        varying vec2 vUv;
 
-      void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
-      }`,
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+        }`,
 
-    fragmentShader: `
-      precision mediump float;
-      uniform sampler2D map;
-      const mat3 rgb2yiq = mat3(0.299, 0.587, 0.114, 0.595716, -0.274453, -0.321263, 0.211456, -0.522591, 0.311135);
-      const mat3 yiq2rgb = mat3(1.0, 0.9563, 0.6210, 1.0, -0.2721, -0.6474, 1.0, -1.1070, 1.7046);
-      uniform float hueAngle;
+      fragmentShader: `
+        precision mediump float;
+        uniform sampler2D map;
+        uniform float hueAngle;
 
-      varying vec2 vUv;
-      void main() {
-        vec4 texel = texture2D( map, vUv );
-        vec3 yColor = rgb2yiq * texel.rgb;
+        varying vec2 vUv;
 
-        float originalHue = atan(yColor.b, yColor.g);
-        float finalHue = originalHue + hueAngle;
-        float chroma = sqrt(yColor.b * yColor.b + yColor.g * yColor.g);
+        vec3 hueRotate(in vec3 color, in float angle) {
+          const mat3 rgb2yiq = mat3(0.299, 0.587, 0.114, 0.595716, -0.274453, -0.321263, 0.211456, -0.522591, 0.311135);
+          const mat3 yiq2rgb = mat3(1.0, 0.9563, 0.6210, 1.0, -0.2721, -0.6474, 1.0, -1.1070, 1.7046);
+          vec3 yColor = rgb2yiq * color;
 
-        vec3 yFinalColor = vec3(yColor.r, chroma * cos(finalHue), chroma * sin(finalHue));
-        gl_FragColor    = vec4(yiq2rgb * yFinalColor, 1.0);
-      }`
-  });
+          float originalHue = atan(yColor.b, yColor.g);
+          float finalHue = originalHue + angle;
+          float chroma = sqrt(yColor.b * yColor.b + yColor.g * yColor.g);
+
+          vec3 yFinalColor = vec3(yColor.r, chroma * cos(finalHue), chroma * sin(finalHue));
+          vec3 final = yiq2rgb * yFinalColor;
+          return final;
+        }
+
+        void main() {
+          vec4 texel = texture2D( map, vUv );
+          vec3 color = texel.rgb;
+          if(bool (hueAngle != 0.0)) {
+            color = hueRotate(texel.rgb, hueAngle);
+          };
+          gl_FragColor = vec4(color, 1.0);
+        }`
+    };
+    Object.entries(uniforms).forEach((param) => {
+      parameters.uniforms[param[0]] = {
+        value: param[1]
+      };
+    });
+    return new THREE.RawShaderMaterial(parameters);
+  };
 
   const getPlaneLayer = (material, width, height) => {
     const geometry = new THREE.PlaneBufferGeometry(width, height);
@@ -93,7 +108,11 @@ const animationScreen = () => {
       materials[screen[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${screen[1]}`));
     } else if (typeof screen[1] === `object`) {
       Object.entries(screen[1]).forEach((item) => {
-        materials[item[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${item[1]}`), item[0] === `2` ? Math.PI / 30 : 0);
+        const uniforms = {};
+        if (item[0] === `2`) {
+          uniforms.hueAngle = Math.PI / 12;
+        }
+        materials[item[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${item[1]}`), uniforms);
       });
     }
   });
