@@ -53,7 +53,8 @@ const animationScreen = () => {
         precision mediump float;
         uniform sampler2D map;
         uniform float hueAngle;
-
+        uniform vec2 resolution;
+        uniform bool bubbles;
         varying vec2 vUv;
 
         vec3 hueRotate(in vec3 color, in float angle) {
@@ -69,12 +70,31 @@ const animationScreen = () => {
           vec3 final = yiq2rgb * yFinalColor;
           return final;
         }
-
+        float getCircle(in vec2 pos, in float size) {
+          float circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
+          circle = smoothstep(size, size, 1.0 - circle);
+          return circle;
+        }
+        float getBubble(in vec2 pos, in float size) {
+          float dist = length(size * pos);
+          float bubble = getCircle(pos, size);
+          return dist * bubble;
+        }
         void main() {
-          vec4 texel = texture2D( map, vUv );
+          float alpha = 0.0;
+          vec2 uv = vUv;
+          if (bubbles) {
+            vec2 st = gl_FragCoord.xy / resolution;
+            vec2 bubble1 = vec2(2.0, 0.7);
+            vec2 bubble2 = vec2(0.4, 0.5);
+            vec2 bubble3 = vec2(1.35, 1.5);
+            alpha += getBubble(st - bubble1, 0.9) + getBubble(st - bubble2, 0.9) + getBubble(st - bubble3, 0.9);
+            uv = uv - pow(alpha, 2.0);
+          }
+          vec4 texel = texture2D(map, uv);
           vec3 color = texel.rgb;
           if(bool (hueAngle != 0.0)) {
-            color = hueRotate(texel.rgb, hueAngle);
+            color = hueRotate(color, hueAngle);
           };
           gl_FragColor = vec4(color, 1.0);
         }`
@@ -105,12 +125,17 @@ const animationScreen = () => {
   const materials = {};
   Object.entries(screens).forEach((screen) => {
     if (typeof screen[1] === `string`) {
-      materials[screen[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${screen[1]}`));
+      materials[screen[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${screen[1]}`), {});
     } else if (typeof screen[1] === `object`) {
       Object.entries(screen[1]).forEach((item) => {
-        const uniforms = {};
+        const uniforms = {
+          resolution: new THREE.Vector2(window.innerHeight, window.innerHeight),
+          hueAngle: 0,
+          bubbles: false,
+        };
         if (item[0] === `2`) {
           uniforms.hueAngle = Math.PI / 12;
+          uniforms.bubbles = true;
         }
         materials[item[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${item[1]}`), uniforms);
       });
