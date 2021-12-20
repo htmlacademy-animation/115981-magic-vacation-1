@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 const animationScreen = () => {
-  const screenPath = `img/module-5/scenes-textures/`;
+  const screenPath = `../img/module-5/scenes-textures/`;
 
   const screens = {
     top: `scene-0.png`,
