@@ -55,6 +55,9 @@ const animationScreen = () => {
         uniform float hueAngle;
         uniform vec2 resolution;
         uniform bool bubbles;
+        uniform vec2 bubble1;
+        uniform vec2 bubble2;
+        uniform vec2 bubble3;
         varying vec2 vUv;
 
         vec3 hueRotate(in vec3 color, in float angle) {
@@ -70,32 +73,46 @@ const animationScreen = () => {
           vec3 final = yiq2rgb * yFinalColor;
           return final;
         }
-        float getCircle(in vec2 pos, in float size) {
+        float getRound(in vec2 pos, in float size) {
           float circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
-          circle = smoothstep(size, size, 1.0 - circle);
-          return circle;
+          circle = smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
+          return ceil(circle);
         }
         float getBubble(in vec2 pos, in float size) {
-          float dist = length(size * pos);
-          float bubble = getCircle(pos, size);
-          return dist * bubble;
+          float bubble = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
+          bubble = smoothstep(size, size / 2.0, bubble);
+          return min(bubble, 1.0);
+        }
+        float getCircle(in vec2 pos, in float size) {
+          float circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
+          circle = smoothstep(0.995 - size, 0.995 - size, 1.0 - circle) - smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
+          return circle;
         }
         void main() {
-          float alpha = 0.0;
+          vec4 mask = vec4(0.0);
           vec2 uv = vUv;
+          vec2 st = gl_FragCoord.xy / resolution.xy;
+          float size = 0.1;
           if (bubbles) {
-            vec2 st = gl_FragCoord.xy / resolution;
-            vec2 bubble1 = vec2(2.0, 0.7);
-            vec2 bubble2 = vec2(0.4, 0.5);
-            vec2 bubble3 = vec2(1.35, 1.5);
-            alpha += getBubble(st - bubble1, 0.9) + getBubble(st - bubble2, 0.9) + getBubble(st - bubble3, 0.9);
-            uv = uv - pow(alpha, 2.0);
+            mask.a += getRound(st - bubble1, size) + getRound(st - bubble2, size) + getRound(st - bubble3, size);
+            mask.r += getBubble(st - bubble1, size) + getBubble(st - bubble2, size) + getBubble(st - bubble3, size);
+            mask.gb = vec2(0.0);
+            vec2 norm;
+            if (getRound(st - bubble1, size) > 0.0) { mask.gb += (st - bubble1 + 1.0) / 2.0; }
+            if (getRound(st - bubble2, size) > 0.0) { mask.gb += (st - bubble2 + 1.0) / 2.0; }
+            if (getRound(st - bubble3, size) > 0.0) { mask.gb += (st - bubble3 + 1.0) / 2.0; }
+            uv = uv - mask.r * (mask.gb * 2.0 - 1.0) * 0.2 * mask.a;
           }
           vec4 texel = texture2D(map, uv);
           vec3 color = texel.rgb;
           if(bool (hueAngle != 0.0)) {
             color = hueRotate(color, hueAngle);
           };
+          if (bubbles) {
+            color += getCircle(st - bubble1, size) * 0.15 +
+                     getCircle(st - bubble2, size) * 0.15 +
+                     getCircle(st - bubble3, size) * 0.15;
+          }
           gl_FragColor = vec4(color, 1.0);
         }`
     };
@@ -125,7 +142,7 @@ const animationScreen = () => {
   const materials = {};
   Object.entries(screens).forEach((screen) => {
     if (typeof screen[1] === `string`) {
-      materials[screen[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${screen[1]}`), {});
+      materials[screen[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${screen[1]}`), { bubbles: false });
     } else if (typeof screen[1] === `object`) {
       Object.entries(screen[1]).forEach((item) => {
         const uniforms = {
@@ -136,6 +153,9 @@ const animationScreen = () => {
         if (item[0] === `2`) {
           uniforms.hueAngle = Math.PI / 12;
           uniforms.bubbles = true;
+          uniforms.bubble1 = new THREE.Vector2(1.1, 0.7);
+          uniforms.bubble2 = new THREE.Vector2(2.0, 0.64);
+          uniforms.bubble3 = new THREE.Vector2(1.7, 1.6);
         }
         materials[item[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${item[1]}`), uniforms);
       });
