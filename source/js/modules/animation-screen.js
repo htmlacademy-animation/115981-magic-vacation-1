@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 const animationScreen = () => {
-  const screenPath = `/img/module-5/scenes-textures/`;
+  const screenPath = `./img/module-5/scenes-textures/`;
 
   const screens = {
     top: `scene-0.png`,
@@ -26,51 +26,103 @@ const animationScreen = () => {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-  const getMaterial = (texture, hueAngle = 0) => new THREE.RawShaderMaterial({
-    uniforms: {
-      map: {
-        value: texture,
+  const getMaterial = (texture, uniforms = {}) => {
+    const parameters = {
+      uniforms: {
+        map: {
+          value: texture,
+        },
       },
-      hueAngle: {
-        value: hueAngle,
-      }
-    },
-    vertexShader: `
-      uniform mat4 projectionMatrix;
-      uniform mat4 modelMatrix;
-      uniform mat4 viewMatrix;
+      vertexShader: `
+        uniform mat4 projectionMatrix;
+        uniform mat4 modelMatrix;
+        uniform mat4 viewMatrix;
 
-      attribute vec3 position;
-      attribute vec3 normal;
-      attribute vec2 uv;
+        attribute vec3 position;
+        attribute vec3 normal;
+        attribute vec2 uv;
 
-      varying vec2 vUv;
+        varying vec2 vUv;
 
-      void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
-      }`,
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0 );
+        }`,
 
-    fragmentShader: `
-      precision mediump float;
-      uniform sampler2D map;
-      const mat3 rgb2yiq = mat3(0.299, 0.587, 0.114, 0.595716, -0.274453, -0.321263, 0.211456, -0.522591, 0.311135);
-      const mat3 yiq2rgb = mat3(1.0, 0.9563, 0.6210, 1.0, -0.2721, -0.6474, 1.0, -1.1070, 1.7046);
-      uniform float hueAngle;
+      fragmentShader: `
+        precision mediump float;
+        uniform sampler2D map;
+        uniform float hueAngle;
+        uniform vec2 resolution;
+        uniform bool bubbles;
+        uniform vec2 bubble1;
+        uniform vec2 bubble2;
+        uniform vec2 bubble3;
+        varying vec2 vUv;
 
-      varying vec2 vUv;
-      void main() {
-        vec4 texel = texture2D( map, vUv );
-        vec3 yColor = rgb2yiq * texel.rgb;
+        vec3 hueRotate(in vec3 color, in float angle) {
+          const mat3 rgb2yiq = mat3(0.299, 0.587, 0.114, 0.595716, -0.274453, -0.321263, 0.211456, -0.522591, 0.311135);
+          const mat3 yiq2rgb = mat3(1.0, 0.9563, 0.6210, 1.0, -0.2721, -0.6474, 1.0, -1.1070, 1.7046);
+          vec3 yColor = rgb2yiq * color;
 
-        float originalHue = atan(yColor.b, yColor.g);
-        float finalHue = originalHue + hueAngle;
-        float chroma = sqrt(yColor.b * yColor.b + yColor.g * yColor.g);
+          float originalHue = atan(yColor.b, yColor.g);
+          float finalHue = originalHue + angle;
+          float chroma = sqrt(yColor.b * yColor.b + yColor.g * yColor.g);
 
-        vec3 yFinalColor = vec3(yColor.r, chroma * cos(finalHue), chroma * sin(finalHue));
-        gl_FragColor    = vec4(yiq2rgb * yFinalColor, 1.0);
-      }`
-  });
+          vec3 yFinalColor = vec3(yColor.r, chroma * cos(finalHue), chroma * sin(finalHue));
+          vec3 final = yiq2rgb * yFinalColor;
+          return final;
+        }
+        float getRound(in vec2 pos, in float size) {
+          float circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
+          circle = smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
+          return ceil(circle);
+        }
+        float getBubble(in vec2 pos, in float size) {
+          float bubble = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
+          bubble = smoothstep(size, size / 2.0, bubble);
+          return min(bubble, 1.0);
+        }
+        float getCircle(in vec2 pos, in float size) {
+          float circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
+          circle = smoothstep(0.995 - size, 0.995 - size, 1.0 - circle) - smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
+          return circle;
+        }
+        void main() {
+          vec4 mask = vec4(0.0);
+          vec2 uv = vUv;
+          vec2 st = gl_FragCoord.xy / resolution.xy;
+          float size = 0.1;
+          if (bubbles) {
+            mask.a += getRound(st - bubble1, size) + getRound(st - bubble2, size) + getRound(st - bubble3, size);
+            mask.r += getBubble(st - bubble1, size) + getBubble(st - bubble2, size) + getBubble(st - bubble3, size);
+            mask.gb = vec2(0.0);
+            vec2 norm;
+            if (getRound(st - bubble1, size) > 0.0) { mask.gb += (st - bubble1 + 1.0) / 2.0; }
+            if (getRound(st - bubble2, size) > 0.0) { mask.gb += (st - bubble2 + 1.0) / 2.0; }
+            if (getRound(st - bubble3, size) > 0.0) { mask.gb += (st - bubble3 + 1.0) / 2.0; }
+            uv = uv - mask.r * (mask.gb * 2.0 - 1.0) * 0.2 * mask.a;
+          }
+          vec4 texel = texture2D(map, uv);
+          vec3 color = texel.rgb;
+          if(bool (hueAngle != 0.0)) {
+            color = hueRotate(color, hueAngle);
+          };
+          if (bubbles) {
+            color += getCircle(st - bubble1, size) * 0.15 +
+                     getCircle(st - bubble2, size) * 0.15 +
+                     getCircle(st - bubble3, size) * 0.15;
+          }
+          gl_FragColor = vec4(color, 1.0);
+        }`
+    };
+    Object.entries(uniforms).forEach((param) => {
+      parameters.uniforms[param[0]] = {
+        value: param[1]
+      };
+    });
+    return new THREE.RawShaderMaterial(parameters);
+  };
 
   const getPlaneLayer = (material, width, height) => {
     const geometry = new THREE.PlaneBufferGeometry(width, height);
@@ -90,10 +142,22 @@ const animationScreen = () => {
   const materials = {};
   Object.entries(screens).forEach((screen) => {
     if (typeof screen[1] === `string`) {
-      materials[screen[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${screen[1]}`));
+      materials[screen[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${screen[1]}`), { bubbles: false });
     } else if (typeof screen[1] === `object`) {
       Object.entries(screen[1]).forEach((item) => {
-        materials[item[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${item[1]}`), item[0] === `2` ? Math.PI / 30 : 0);
+        const uniforms = {
+          resolution: new THREE.Vector2(window.innerHeight, window.innerHeight),
+          hueAngle: 0,
+          bubbles: false,
+        };
+        if (item[0] === `2`) {
+          uniforms.hueAngle = Math.PI / 12;
+          uniforms.bubbles = true;
+          uniforms.bubble1 = new THREE.Vector2(1.1, 0.7);
+          uniforms.bubble2 = new THREE.Vector2(2.0, 0.64);
+          uniforms.bubble3 = new THREE.Vector2(1.7, 1.6);
+        }
+        materials[item[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${item[1]}`), uniforms);
       });
     }
   });
