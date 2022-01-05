@@ -61290,7 +61290,7 @@ const animationScreen = () => {
     requestAnimationFrame(() => render(s, c));
   };
 
-  const getBubble = (x, y) => new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"]((window.innerWidth / 100 * x) / (window.innerHeight / 2), (window.innerHeight / 100 * y) / (window.innerHeight / 2));
+  const getBubble = (x, y) => new three__WEBPACK_IMPORTED_MODULE_0__["Vector2"]((window.innerWidth / 100 * x) / (window.innerHeight / window.devicePixelRatio), (window.innerHeight / 100 * y) / (window.innerHeight / window.devicePixelRatio));
 
   requestAnimationFrame(() => render(scene, camera));
   const materials = {};
