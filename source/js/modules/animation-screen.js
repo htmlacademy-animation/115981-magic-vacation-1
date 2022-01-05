@@ -58,7 +58,6 @@ const animationScreen = () => {
         uniform vec2 bubble1;
         uniform vec2 bubble2;
         uniform vec2 bubble3;
-        uniform float bubbleSize;
         varying vec2 vUv;
 
         vec3 hueRotate(in vec3 color, in float angle) {
@@ -95,13 +94,13 @@ const animationScreen = () => {
           vec2 st = gl_FragCoord.xy / resolution.xy;
           float size = 0.1;
           if (bubbles) {
-            mask.a += getRound(st - bubble1, bubbleSize) + getRound(st - bubble2, bubbleSize) + getRound(st - bubble3, bubbleSize);
-            mask.r += getBubble(st - bubble1, bubbleSize) + getBubble(st - bubble2, bubbleSize) + getBubble(st - bubble3, bubbleSize);
+            mask.a += getRound(st - bubble1, size) + getRound(st - bubble2, size) + getRound(st - bubble3, size);
+            mask.r += getBubble(st - bubble1, size) + getBubble(st - bubble2, size) + getBubble(st - bubble3, size);
             mask.gb = vec2(0.0);
             vec2 norm;
-            if (getRound(st - bubble1, bubbleSize) > 0.0) { mask.gb += (st - bubble1 + 1.0) / 2.0; }
-            if (getRound(st - bubble2, bubbleSize) > 0.0) { mask.gb += (st - bubble2 + 1.0) / 2.0; }
-            if (getRound(st - bubble3, bubbleSize) > 0.0) { mask.gb += (st - bubble3 + 1.0) / 2.0; }
+            if (getRound(st - bubble1, size) > 0.0) { mask.gb += (st - bubble1 + 1.0) / 2.0; }
+            if (getRound(st - bubble2, size) > 0.0) { mask.gb += (st - bubble2 + 1.0) / 2.0; }
+            if (getRound(st - bubble3, size) > 0.0) { mask.gb += (st - bubble3 + 1.0) / 2.0; }
             uv = uv - mask.r * (mask.gb * 2.0 - 1.0) * 0.2 * mask.a;
           }
           vec4 texel = texture2D(map, uv);
@@ -159,7 +158,6 @@ const animationScreen = () => {
           uniforms.bubble1 = getBubble(35, 35);
           uniforms.bubble2 = getBubble(55, 70);
           uniforms.bubble3 = getBubble(65, 28);
-          uniforms.bubbleSize = window.devicePixelRatio * 0.05;
         }
         materials[item[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${item[1]}`), uniforms);
       });
