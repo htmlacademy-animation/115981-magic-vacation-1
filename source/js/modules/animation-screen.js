@@ -138,6 +138,8 @@ const animationScreen = () => {
     requestAnimationFrame(() => render(s, c));
   };
 
+  const getBubble = (x, y) => new THREE.Vector2((window.innerWidth / 100 * x) / (window.innerHeight / 2), (window.innerHeight / 100 * y) / (window.innerHeight / 2));
+
   requestAnimationFrame(() => render(scene, camera));
   const materials = {};
   Object.entries(screens).forEach((screen) => {
@@ -153,9 +155,9 @@ const animationScreen = () => {
         if (item[0] === `2`) {
           uniforms.hueAngle = Math.PI / 12;
           uniforms.bubbles = true;
-          uniforms.bubble1 = new THREE.Vector2(1.1, 0.7);
-          uniforms.bubble2 = new THREE.Vector2(2.0, 0.64);
-          uniforms.bubble3 = new THREE.Vector2(1.7, 1.6);
+          uniforms.bubble1 = getBubble(35, 35);
+          uniforms.bubble2 = getBubble(55, 70);
+          uniforms.bubble3 = getBubble(65, 28);
         }
         materials[item[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${item[1]}`), uniforms);
       });
