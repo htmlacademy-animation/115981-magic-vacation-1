@@ -80,8 +80,8 @@ const animationScreen = () => {
         }
         float getBubble(in vec2 pos, in float size) {
           float bubble = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
-          bubble = smoothstep(size, size / 2.0, bubble);
-          return min(bubble, 1.0);
+          bubble = smoothstep(size / 2.0, size, bubble);
+          return 1.0 - bubble;
         }
         float getCircle(in vec2 pos, in float size) {
           float circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
