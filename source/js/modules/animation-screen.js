@@ -89,6 +89,14 @@ const animationScreen = () => {
           circle = smoothstep(0.995 - size, 0.995 - size, 1.0 - circle) - smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
           return circle;
         }
+        float getArc(in vec2 pos, in float size) {
+          float circle;
+          if ( pos.x > -.1 && pos.x < -.025 && pos.y > .02 ) {
+            circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
+            circle = smoothstep(0.995 - size, 0.995 - size, 1.0 - circle) - smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
+          }
+          return circle;
+        }
         void main() {
           vec4 mask = vec4(0.0);
           vec2 uv = vUv;
@@ -110,9 +118,9 @@ const animationScreen = () => {
             color = hueRotate(color, hueAngle);
           };
           if (bubbles) {
-            color += getCircle(st - bubble1, size) * 0.15 +
-                     getCircle(st - bubble2, size) * 0.15 +
-                     getCircle(st - bubble3, size) * 0.15;
+            color += getCircle(st - bubble1, size) * 0.15 + getArc(st - bubble1, size - .015) * 0.15 +
+                     getCircle(st - bubble2, size) * 0.15 + getArc(st - bubble2, size - .015) * 0.15 +
+                     getCircle(st - bubble3, size) * 0.15 + getArc(st - bubble3, size - .015) * 0.15;
           }
           gl_FragColor = vec4(color, 1.0);
         }`
