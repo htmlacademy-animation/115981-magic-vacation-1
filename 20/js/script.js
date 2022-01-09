@@ -61206,11 +61206,11 @@ const animationScreen = () => {
         uniform sampler2D map;
         uniform float hueAngle;
         uniform vec2 resolution;
+        uniform float density;
         uniform bool bubbles;
         uniform vec2 bubble1;
         uniform vec2 bubble2;
         uniform vec2 bubble3;
-        uniform float bubbleSize;
         varying vec2 vUv;
 
         vec3 hueRotate(in vec3 color, in float angle) {
@@ -61233,8 +61233,8 @@ const animationScreen = () => {
         }
         float getBubble(in vec2 pos, in float size) {
           float bubble = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
-          bubble = smoothstep(size, size / 2.0, bubble);
-          return min(bubble, 1.0);
+          bubble = smoothstep(size / 2.0, size, bubble);
+          return 1.0 - bubble;
         }
         float getCircle(in vec2 pos, in float size) {
           float circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
@@ -61245,15 +61245,15 @@ const animationScreen = () => {
           vec4 mask = vec4(0.0);
           vec2 uv = vUv;
           vec2 st = gl_FragCoord.xy / resolution.xy;
-          float size = 0.1;
+          float size = 0.05 * density;
           if (bubbles) {
-            mask.a += getRound(st - bubble1, bubbleSize) + getRound(st - bubble2, bubbleSize) + getRound(st - bubble3, bubbleSize);
-            mask.r += getBubble(st - bubble1, bubbleSize) + getBubble(st - bubble2, bubbleSize) + getBubble(st - bubble3, bubbleSize);
+            mask.a += getRound(st - bubble1, size) + getRound(st - bubble2, size) + getRound(st - bubble3, size);
+            mask.r += getBubble(st - bubble1, size) + getBubble(st - bubble2, size) + getBubble(st - bubble3, size);
             mask.gb = vec2(0.0);
             vec2 norm;
-            if (getRound(st - bubble1, bubbleSize) > 0.0) { mask.gb += (st - bubble1 + 1.0) / 2.0; }
-            if (getRound(st - bubble2, bubbleSize) > 0.0) { mask.gb += (st - bubble2 + 1.0) / 2.0; }
-            if (getRound(st - bubble3, bubbleSize) > 0.0) { mask.gb += (st - bubble3 + 1.0) / 2.0; }
+            if (getRound(st - bubble1, size) > 0.0) { mask.gb += (st - bubble1 + 1.0) / 2.0; }
+            if (getRound(st - bubble2, size) > 0.0) { mask.gb += (st - bubble2 + 1.0) / 2.0; }
+            if (getRound(st - bubble3, size) > 0.0) { mask.gb += (st - bubble3 + 1.0) / 2.0; }
             uv = uv - mask.r * (mask.gb * 2.0 - 1.0) * 0.2 * mask.a;
           }
           vec4 texel = texture2D(map, uv);
@@ -61311,7 +61311,7 @@ const animationScreen = () => {
           uniforms.bubble1 = getBubble(35, 35);
           uniforms.bubble2 = getBubble(55, 70);
           uniforms.bubble3 = getBubble(65, 28);
-          uniforms.bubbleSize = window.devicePixelRatio * 0.05;
+          uniforms.density = window.devicePixelRatio;
         }
         materials[item[0]] = getMaterial(new three__WEBPACK_IMPORTED_MODULE_0__["TextureLoader"]().load(`${screenPath}${item[1]}`), uniforms);
       });
