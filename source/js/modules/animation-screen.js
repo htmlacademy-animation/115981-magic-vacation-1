@@ -54,6 +54,7 @@ const animationScreen = () => {
         uniform sampler2D map;
         uniform float hueAngle;
         uniform vec2 resolution;
+        uniform float density;
         uniform bool bubbles;
         uniform vec2 bubble1;
         uniform vec2 bubble2;
@@ -92,7 +93,7 @@ const animationScreen = () => {
           vec4 mask = vec4(0.0);
           vec2 uv = vUv;
           vec2 st = gl_FragCoord.xy / resolution.xy;
-          float size = 0.1;
+          float size = 0.05 * density;
           if (bubbles) {
             mask.a += getRound(st - bubble1, size) + getRound(st - bubble2, size) + getRound(st - bubble3, size);
             mask.r += getBubble(st - bubble1, size) + getBubble(st - bubble2, size) + getBubble(st - bubble3, size);
@@ -158,6 +159,7 @@ const animationScreen = () => {
           uniforms.bubble1 = getBubble(35, 35);
           uniforms.bubble2 = getBubble(55, 70);
           uniforms.bubble3 = getBubble(65, 28);
+          uniforms.density = window.devicePixelRatio;
         }
         materials[item[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${item[1]}`), uniforms);
       });
