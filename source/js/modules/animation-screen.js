@@ -54,6 +54,7 @@ const animationScreen = () => {
         uniform sampler2D map;
         uniform float hueAngle;
         uniform vec2 resolution;
+        uniform float density;
         uniform bool bubbles;
         uniform vec2 bubble1;
         uniform vec2 bubble2;
@@ -80,19 +81,27 @@ const animationScreen = () => {
         }
         float getBubble(in vec2 pos, in float size) {
           float bubble = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
-          bubble = smoothstep(size, size / 2.0, bubble);
-          return min(bubble, 1.0);
+          bubble = smoothstep(size / 2.0, size, bubble);
+          return 1.0 - bubble;
         }
         float getCircle(in vec2 pos, in float size) {
           float circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
           circle = smoothstep(0.995 - size, 0.995 - size, 1.0 - circle) - smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
           return circle;
         }
+        float getArc(in vec2 pos, in float size) {
+          float circle;
+          if ( pos.x > -.1 && pos.x < -.025 && pos.y > .02 ) {
+            circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
+            circle = smoothstep(0.995 - size, 0.995 - size, 1.0 - circle) - smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
+          }
+          return circle;
+        }
         void main() {
           vec4 mask = vec4(0.0);
           vec2 uv = vUv;
           vec2 st = gl_FragCoord.xy / resolution.xy;
-          float size = 0.1;
+          float size = 0.05 * density;
           if (bubbles) {
             mask.a += getRound(st - bubble1, size) + getRound(st - bubble2, size) + getRound(st - bubble3, size);
             mask.r += getBubble(st - bubble1, size) + getBubble(st - bubble2, size) + getBubble(st - bubble3, size);
@@ -109,9 +118,9 @@ const animationScreen = () => {
             color = hueRotate(color, hueAngle);
           };
           if (bubbles) {
-            color += getCircle(st - bubble1, size) * 0.15 +
-                     getCircle(st - bubble2, size) * 0.15 +
-                     getCircle(st - bubble3, size) * 0.15;
+            color += getCircle(st - bubble1, size) * 0.15 + getArc(st - bubble1, size - .015) * 0.15 +
+                     getCircle(st - bubble2, size) * 0.15 + getArc(st - bubble2, size - .015) * 0.15 +
+                     getCircle(st - bubble3, size) * 0.15 + getArc(st - bubble3, size - .015) * 0.15;
           }
           gl_FragColor = vec4(color, 1.0);
         }`
@@ -138,6 +147,8 @@ const animationScreen = () => {
     requestAnimationFrame(() => render(s, c));
   };
 
+  const getBubble = (x, y) => new THREE.Vector2((window.innerWidth / 100 * x) / (window.innerHeight / window.devicePixelRatio), (window.innerHeight / 100 * y) / (window.innerHeight / window.devicePixelRatio));
+
   requestAnimationFrame(() => render(scene, camera));
   const materials = {};
   Object.entries(screens).forEach((screen) => {
@@ -153,9 +164,10 @@ const animationScreen = () => {
         if (item[0] === `2`) {
           uniforms.hueAngle = Math.PI / 12;
           uniforms.bubbles = true;
-          uniforms.bubble1 = new THREE.Vector2(1.1, 0.7);
-          uniforms.bubble2 = new THREE.Vector2(2.0, 0.64);
-          uniforms.bubble3 = new THREE.Vector2(1.7, 1.6);
+          uniforms.bubble1 = getBubble(35, 35);
+          uniforms.bubble2 = getBubble(55, 70);
+          uniforms.bubble3 = getBubble(65, 28);
+          uniforms.density = window.devicePixelRatio;
         }
         materials[item[0]] = getMaterial(new THREE.TextureLoader().load(`${screenPath}${item[1]}`), uniforms);
       });
