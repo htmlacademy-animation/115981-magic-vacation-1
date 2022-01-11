@@ -76,7 +76,7 @@ const animationScreen = () => {
         }
         float getRound(in vec2 pos, in float size) {
           float circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
-          circle = smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
+          circle = step(1.0 - size, 1.0 - circle);
           return ceil(circle);
         }
         float getBubble(in vec2 pos, in float size) {
@@ -86,14 +86,14 @@ const animationScreen = () => {
         }
         float getCircle(in vec2 pos, in float size) {
           float circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
-          circle = smoothstep(0.995 - size, 0.995 - size, 1.0 - circle) - smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
+          circle = step(0.995 - size, 1.0 - circle) - step(1.0 - size, 1.0 - circle);
           return circle;
         }
         float getArc(in vec2 pos, in float size) {
           float circle;
           if ( pos.x > -.1 && pos.x < -.025 && pos.y > .02 ) {
             circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
-            circle = smoothstep(0.995 - size, 0.995 - size, 1.0 - circle) - smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
+            circle = step(0.995 - size, 1.0 - circle) - step(1.0 - size, 1.0 - circle);
           }
           return circle;
         }
