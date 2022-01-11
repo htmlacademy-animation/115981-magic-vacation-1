@@ -76,7 +76,7 @@ const animationScreen = () => {
         }
         float getRound(in vec2 pos, in float size) {
           float circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
-          circle = smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
+          circle = step(1.0 - size, 1.0 - circle);
           return ceil(circle);
         }
         float getBubble(in vec2 pos, in float size) {
@@ -86,14 +86,14 @@ const animationScreen = () => {
         }
         float getCircle(in vec2 pos, in float size) {
           float circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
-          circle = smoothstep(0.995 - size, 0.995 - size, 1.0 - circle) - smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
+          circle = step(0.995 - size, 1.0 - circle) - step(1.0 - size, 1.0 - circle);
           return circle;
         }
         float getArc(in vec2 pos, in float size) {
           float circle;
           if ( pos.x > -.1 && pos.x < -.025 && pos.y > .02 ) {
             circle = sqrt(pow(pos.x, 2.0) + pow(pos.y, 2.0));
-            circle = smoothstep(0.995 - size, 0.995 - size, 1.0 - circle) - smoothstep(1.0 - size, 1.0 - size, 1.0 - circle);
+            circle = step(0.995 - size, 1.0 - circle) - step(1.0 - size, 1.0 - circle);
           }
           return circle;
         }
@@ -142,11 +142,19 @@ const animationScreen = () => {
   camera.position.z = cameraZ + 0.1;
   renderer.render(scene, camera);
 
+  let material;
+  let angleModifier = 0;
+
   const render = (s, c) => {
     renderer.render(s, c);
+    if (slideActive === 2) {
+      const t = Math.cos(Date.now() / 400);
+      angleModifier = +t.toFixed(1) === 0 ? Math.random() * 5 - 2.5 : angleModifier;
+      material.uniforms.hueAngle.value = 2 * Math.PI + (Math.PI / 180) * ((10 + angleModifier) * t);
+      material.needsUpdate = true;
+    }
     requestAnimationFrame(() => render(s, c));
   };
-
   const getBubble = (x, y) => new THREE.Vector2((window.innerWidth / 100 * x) / (window.innerHeight / window.devicePixelRatio), (window.innerHeight / 100 * y) / (window.innerHeight / window.devicePixelRatio));
 
   requestAnimationFrame(() => render(scene, camera));
@@ -181,10 +189,12 @@ const animationScreen = () => {
       scene.remove(scene.children[0]);
     }
     if (name === `story`) {
-      const geometry = getPlaneLayer(materials[+slideActive], window.innerHeight * 2, window.innerHeight);
+      material = materials[+slideActive];
+      const geometry = getPlaneLayer(material, window.innerHeight * 2, window.innerHeight);
       scene.add(geometry);
     } else {
-      const geometry = getPlaneLayer(materials[name], window.innerHeight * 2, window.innerHeight);
+      material = materials[name];
+      const geometry = getPlaneLayer(material, window.innerHeight * 2, window.innerHeight);
       scene.add(geometry);
     }
   });
@@ -194,7 +204,8 @@ const animationScreen = () => {
       scene.remove(scene.children[0]);
     }
     slideActive = +e.detail.active % 2 === 0 ? +e.detail.active : +e.detail.active - 1;
-    const geometry = getPlaneLayer(materials[+slideActive], window.innerHeight * 2, window.innerHeight);
+    material = materials[+slideActive];
+    const geometry = getPlaneLayer(material, window.innerHeight * 2, window.innerHeight);
     scene.add(geometry);
   });
 };
