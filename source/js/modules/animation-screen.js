@@ -144,13 +144,39 @@ const animationScreen = () => {
 
   let material;
   let angleModifier = 0;
+  const yStart = -10;
+  let b1x = 25;
+  let b1y = yStart;
+  let b2x = 50;
+  let b2y = yStart;
+  let b3x = 75;
+  let b3y = yStart;
+
+  const animateBubble = (x, y, start) => {
+    const t = Math.cos(Date.now() / 200);
+    if (y < 110) {
+      x += t * ((100 - y) / (100 - start));
+      y += 1;
+    }
+    return [x, y];
+  };
 
   const render = (s, c) => {
     renderer.render(s, c);
     if (slideActive === 2) {
-      const t = Math.cos(Date.now() / 400);
-      angleModifier = +t.toFixed(1) === 0 ? Math.random() * 5 - 2.5 : angleModifier;
-      material.uniforms.hueAngle.value = 2 * Math.PI + (Math.PI / 180) * ((10 + angleModifier) * t);
+      const tHue = Math.cos(Date.now() / 400);
+      angleModifier = +tHue.toFixed(1) === 0 ? Math.random() * 5 - 2.5 : angleModifier;
+      [b1x, b1y] = animateBubble(b1x, b1y, yStart);
+      setTimeout(() => {
+        [b2x, b2y] = animateBubble(b2x, b2y, yStart);
+      }, 1200);
+      setTimeout(() => {
+        [b3x, b3y] = animateBubble(b3x, b3y, yStart);
+      }, 700);
+      material.uniforms.bubble1.value = getBubble(b1x, b1y);
+      material.uniforms.bubble2.value = getBubble(b2x, b2y);
+      material.uniforms.bubble3.value = getBubble(b3x, b3y);
+      material.uniforms.hueAngle.value = 2 * Math.PI + (Math.PI / 180) * ((10 + angleModifier) * tHue);
       material.needsUpdate = true;
     }
     requestAnimationFrame(() => render(s, c));
