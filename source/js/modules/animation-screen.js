@@ -24,7 +24,7 @@ const animationScreen = () => {
 
   container.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
 
   const getMaterial = (texture, uniforms = {}) => {
     const parameters = {
@@ -138,7 +138,36 @@ const animationScreen = () => {
     return new THREE.Mesh(geometry, material);
   };
 
-  const cameraZ = Math.sqrt(window.innerHeight * window.innerHeight - (window.innerHeight * window.innerHeight) / 4);
+  const getLight = () => {
+    const light = new THREE.Group();
+    let lightUnit = new THREE.DirectionalLight(new THREE.Color(`rgb(255,255,255)`), 0.84);
+    lightUnit.position.set(0, camera.position.z * Math.tan(-15 * THREE.Math.DEG2RAD), camera.position.z);
+    light.add(lightUnit);
+
+    lightUnit = new THREE.PointLight(new THREE.Color(`rgb(246,242,255)`), 0.60, 975 * 6, 2);
+    lightUnit.position.set(-785, -350, 710);
+    light.add(lightUnit);
+
+    lightUnit = new THREE.PointLight(new THREE.Color(`rgb(245,254,255)`), 0.95, 975 * 6, 2);
+    lightUnit.position.set(730, -800, -985);
+    light.add(lightUnit);
+
+    return light;
+  };
+
+  const getSphere = () => {
+    const geometry = new THREE.SphereGeometry(100, 32, 32);
+
+    const material = new THREE.MeshStandardMaterial({
+      color: 0xa67ee5,
+      metalness: 0.05,
+      emissive: 0x0,
+      roughness: 0.5
+    });
+
+    return new THREE.Mesh(geometry, material);
+  };
+  const cameraZ = 750;
   camera.position.z = cameraZ + 0.1;
   renderer.render(scene, camera);
 
@@ -181,6 +210,7 @@ const animationScreen = () => {
     }
     requestAnimationFrame(() => render(s, c));
   };
+
   const getBubble = (x, y) => new THREE.Vector2((window.innerWidth / 100 * x) / (window.innerHeight / window.devicePixelRatio), (window.innerHeight / 100 * y) / (window.innerHeight / window.devicePixelRatio));
 
   requestAnimationFrame(() => render(scene, camera));
@@ -223,6 +253,10 @@ const animationScreen = () => {
       const geometry = getPlaneLayer(material, window.innerHeight * 2, window.innerHeight);
       scene.add(geometry);
     }
+    const light = getLight();
+    light.position.z = camera.position.z;
+    scene.add(light);
+    scene.add(getSphere());
   });
 
   document.body.addEventListener(`slideChanged`, (e) => {
@@ -233,6 +267,10 @@ const animationScreen = () => {
     material = materials[+slideActive];
     const geometry = getPlaneLayer(material, window.innerHeight * 2, window.innerHeight);
     scene.add(geometry);
+    const light = getLight();
+    light.position.z = camera.position.z;
+    scene.add(light);
+    scene.add(getSphere());
   });
 };
 
