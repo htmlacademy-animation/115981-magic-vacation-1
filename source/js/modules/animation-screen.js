@@ -24,7 +24,7 @@ const animationScreen = () => {
 
   container.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 2000);
+  const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
 
   const getMaterial = (texture, uniforms = {}) => {
     const parameters = {
@@ -155,53 +155,19 @@ const animationScreen = () => {
     return light;
   };
 
-  const getPyramid4 = (sizes, material) => {
-    const top = Math.sqrt((sizes.top * sizes.top) / 2);
-    const bottom = Math.sqrt((sizes.bottom * sizes.bottom) / 2);
-    const geometry = new THREE.CylinderGeometry(top, bottom, sizes.height, 4, 4);
+  const getSphere = () => {
+    const geometry = new THREE.SphereGeometry(100, 32, 32);
+
+    const material = new THREE.MeshStandardMaterial({
+      color: 0xa67ee5,
+      metalness: 0.05,
+      emissive: 0x0,
+      roughness: 0.5
+    });
+
     return new THREE.Mesh(geometry, material);
   };
-
-  const getLantern = () => {
-    const lantern = new THREE.Group();
-    const lanternMaterial = new THREE.MeshStandardMaterial({ color: 0x387eff });
-    let piece = getPyramid4({ top: 45, bottom: 57, height: 6 }, lanternMaterial);
-    piece.position.set(0, 300, 0);
-    lantern.add(piece);
-    piece = getPyramid4({ top: 42, bottom: 34, height: 60 }, new THREE.MeshStandardMaterial({ color: 0x94b4f7 }));
-    piece.position.set(0, 270, 0);
-    lantern.add(piece);
-    piece = getPyramid4({ top: 37, bottom: 37, height: 4 }, lanternMaterial);
-    piece.position.set(0, 240, 0);
-    lantern.add(piece);
-    piece = new THREE.Mesh(new THREE.CylinderGeometry(7, 7, 230, 12, 12), lanternMaterial);
-    piece.position.set(0, 125, 0);
-    lantern.add(piece);
-    piece = new THREE.Mesh(new THREE.SphereGeometry(16, 16, 16), lanternMaterial);
-    piece.position.set(0, -5, 0);
-    lantern.add(piece);
-    piece = new THREE.Mesh(new THREE.CylinderGeometry(16, 16, 120, 12, 12), lanternMaterial);
-    piece.position.set(0, -66, 0);
-    lantern.add(piece);
-    return lantern;
-  };
-
-  const getSnowman = () => {
-    const snowman = new THREE.Group();
-    const snowMaterial = new THREE.MeshStandardMaterial({ color: 0x94a7c0 });
-    let piece = new THREE.Mesh(new THREE.SphereGeometry(44, 16, 16), snowMaterial);
-    snowman.add(piece);
-    piece = new THREE.Mesh(new THREE.SphereGeometry(75, 16, 16), snowMaterial);
-    piece.position.set(0, -110, 0);
-    snowman.add(piece);
-    piece = new THREE.Mesh(new THREE.ConeGeometry(10, 50, 16), new THREE.MeshBasicMaterial({ color: 0xd44d1b }));
-    piece.position.set(0, 0, 66);
-    piece.rotation.x = (Math.PI / 180) * 90;
-    snowman.add(piece);
-    return snowman;
-  };
-
-  const cameraZ = 1599;
+  const cameraZ = 750;
   camera.position.z = cameraZ + 0.1;
   renderer.render(scene, camera);
 
@@ -272,23 +238,7 @@ const animationScreen = () => {
     }
   });
   let slideActive = 0;
-  const pyramidMaterial = new THREE.MeshStandardMaterial({
-    color: 0x387eff,
-    metalness: 0.05,
-    emissive: 0x0,
-    roughness: 0.5
-  });
-  const pyramid = getPyramid4({ top: 0, bottom: 250, height: 280 }, pyramidMaterial);
-  pyramid.rotation.x = (Math.PI / 180) * 12;
-  pyramid.position.set(-20, -58, 0);
-  const lantern = getLantern();
-  lantern.position.set(400, -150, 0);
-  lantern.rotation.x = (Math.PI / 180) * 12;
-  lantern.rotation.y = (Math.PI / 180) * -24;
-  const snowman = getSnowman();
-  snowman.position.set(-140, -20, 0);
-  snowman.rotation.x = (Math.PI / 180) * 12;
-  snowman.rotation.y = (Math.PI / 180) * 45;
+
   document.body.addEventListener(`screenChanged`, (e) => {
     const name = e.detail.screenName;
     while (scene.children.length > 0) {
@@ -296,13 +246,6 @@ const animationScreen = () => {
     }
     if (name === `story`) {
       material = materials[+slideActive];
-      if (slideActive === 2) {
-        scene.add(pyramid);
-        scene.add(lantern);
-      }
-      if (slideActive === 4) {
-        scene.add(snowman);
-      }
       const geometry = getPlaneLayer(material, window.innerHeight * 2, window.innerHeight);
       scene.add(geometry);
     } else {
@@ -313,6 +256,7 @@ const animationScreen = () => {
     const light = getLight();
     light.position.z = camera.position.z;
     scene.add(light);
+    scene.add(getSphere());
   });
 
   document.body.addEventListener(`slideChanged`, (e) => {
@@ -326,13 +270,7 @@ const animationScreen = () => {
     const light = getLight();
     light.position.z = camera.position.z;
     scene.add(light);
-    if (slideActive === 2) {
-      scene.add(pyramid);
-      scene.add(lantern);
-    }
-    if (slideActive === 4) {
-      scene.add(snowman);
-    }
+    scene.add(getSphere());
   });
 };
 
