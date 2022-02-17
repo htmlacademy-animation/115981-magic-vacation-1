@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import svg2Shape from "../helpers/svg2Shape";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import svgElements from "../helpers/svgElements";
 
