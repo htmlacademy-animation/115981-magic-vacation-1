@@ -1,4 +1,7 @@
 import * as THREE from "three";
+import svg2Shape from "../helpers/svg2Shape";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import svgElements from "../helpers/svgElements";
 
 const animationScreen = () => {
   const screenPath = `./img/module-5/scenes-textures/`;
@@ -24,8 +27,8 @@ const animationScreen = () => {
 
   container.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 2000);
-
+  const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 6000);
+  const controls = new OrbitControls(camera, renderer.domElement);
   const getMaterial = (texture, uniforms = {}) => {
     const parameters = {
       uniforms: {
@@ -144,11 +147,11 @@ const animationScreen = () => {
     lightUnit.position.set(0, camera.position.z * Math.tan(-15 * THREE.Math.DEG2RAD), camera.position.z);
     light.add(lightUnit);
 
-    lightUnit = new THREE.PointLight(new THREE.Color(`rgb(246,242,255)`), 0.60, 975 * 6, 2);
+    lightUnit = new THREE.PointLight(new THREE.Color(`rgb(246,242,255)`), 0.60, 975, 2);
     lightUnit.position.set(-785, -350, 710);
     light.add(lightUnit);
 
-    lightUnit = new THREE.PointLight(new THREE.Color(`rgb(245,254,255)`), 0.95, 975 * 6, 2);
+    lightUnit = new THREE.PointLight(new THREE.Color(`rgb(245,254,255)`), 0.95, 975, 2);
     lightUnit.position.set(730, -800, -985);
     light.add(lightUnit);
 
@@ -242,6 +245,7 @@ const animationScreen = () => {
       material.uniforms.hueAngle.value = 2 * Math.PI + (Math.PI / 180) * ((10 + angleModifier) * tHue);
       material.needsUpdate = true;
     }
+    controls.update();
     requestAnimationFrame(() => render(s, c));
   };
 
@@ -278,7 +282,8 @@ const animationScreen = () => {
     emissive: 0x0,
     roughness: 0.5
   });
-  const pyramid = getPyramid4({ top: 0, bottom: 250, height: 280 }, pyramidMaterial);
+  const pyramidGeometry = new THREE.ConeGeometry(Math.sqrt((250 * 250) / 2), 280, 4);
+  const pyramid = new THREE.Mesh(pyramidGeometry, pyramidMaterial);
   pyramid.rotation.x = (Math.PI / 180) * 12;
   pyramid.position.set(-20, -58, 0);
   const lantern = getLantern();
@@ -289,13 +294,27 @@ const animationScreen = () => {
   snowman.position.set(-140, -20, 0);
   snowman.rotation.x = (Math.PI / 180) * 12;
   snowman.rotation.y = (Math.PI / 180) * 45;
+  const snowflake = svgElements().snowflake;
+  const question = svgElements().question;
+  const leaf = svgElements().leaf;
+  const leaf2 = svgElements().leaf2;
+  const leaf3 = svgElements().leaf3;
+  const flamingo = svgElements().flamingo;
+  const keyhole = svgElements().keyhole;
+  const flower = svgElements().flower;
   document.body.addEventListener(`screenChanged`, (e) => {
     const name = e.detail.screenName;
     while (scene.children.length > 0) {
       scene.remove(scene.children[0]);
     }
+    const light = getLight();
+    light.position.z = camera.position.z;
+    scene.add(light);
     if (name === `story`) {
       material = materials[+slideActive];
+      if (slideActive === 0) {
+        scene.add(flower);
+      }
       if (slideActive === 2) {
         scene.add(pyramid);
         scene.add(lantern);
@@ -309,10 +328,12 @@ const animationScreen = () => {
       material = materials[name];
       const geometry = getPlaneLayer(material, window.innerHeight * 2, window.innerHeight);
       scene.add(geometry);
+      scene.add(snowflake);
+      scene.add(question);
+      scene.add(leaf);
+      scene.add(flamingo);
+      scene.add(keyhole);
     }
-    const light = getLight();
-    light.position.z = camera.position.z;
-    scene.add(light);
   });
 
   document.body.addEventListener(`slideChanged`, (e) => {
@@ -326,9 +347,14 @@ const animationScreen = () => {
     const light = getLight();
     light.position.z = camera.position.z;
     scene.add(light);
+    if (slideActive === 0) {
+      scene.add(flower);
+    }
     if (slideActive === 2) {
       scene.add(pyramid);
       scene.add(lantern);
+      scene.add(leaf2);
+      scene.add(leaf3);
     }
     if (slideActive === 4) {
       scene.add(snowman);
