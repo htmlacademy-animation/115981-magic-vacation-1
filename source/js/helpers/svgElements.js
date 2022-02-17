@@ -3,37 +3,37 @@ import svg2Shape from "./svg2Shape";
 const svgElements = () => {
   const svgList = {
     snowflake: {
-      file: `../img/module-6/svg-forms/snowflake.svg`,
+      file: `img/module-6/svg-forms/snowflake.svg`,
       color: `#3b7bf2`,
       depth: 8,
       cap: 2,
     },
     flamingo: {
-      file: `../img/module-6/svg-forms/flamingo.svg`,
+      file: `img/module-6/svg-forms/flamingo.svg`,
       color: `#fe6183`,
       depth: 8,
       cap: 2,
     },
     flower: {
-      file: `../img/module-6/svg-forms/flower.svg`,
+      file: `img/module-6/svg-forms/flower.svg`,
       color: `#3b7bf2`,
       depth: 8,
       cap: 2,
     },
     keyhole: {
-      file: `../img/module-6/svg-forms/keyhole.svg`,
+      file: `img/module-6/svg-forms/keyhole.svg`,
       color: `#a67ee5`,
       depth: 20,
       cap: 2,
     },
     leaf: {
-      file: `../img/module-6/svg-forms/leaf.svg`,
+      file: `img/module-6/svg-forms/leaf.svg`,
       color: `#34df96`,
       depth: 8,
       cap: 3,
     },
     question: {
-      file: `../img/module-6/svg-forms/question.svg`,
+      file: `img/module-6/svg-forms/question.svg`,
       color: `#3b7bf2`,
       depth: 8,
       cap: 2,
