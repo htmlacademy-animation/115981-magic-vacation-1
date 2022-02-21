@@ -203,6 +203,71 @@ const animationScreen = () => {
     return snowman;
   };
 
+  const getSaturnLamp = () => {
+    const group = new THREE.Group();
+
+    const ringPoints = [
+      new THREE.Vector2(120, -1),
+      new THREE.Vector2(120, 1),
+      new THREE.Vector2(80, 1),
+      new THREE.Vector2(80, -1),
+      new THREE.Vector2(120, -1),
+    ];
+    const ringGeometry = new THREE.LatheGeometry(ringPoints, 36);
+    const ringMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+    ring.rotation.z = 18 * (Math.PI / 180);
+    group.add(ring);
+
+    const planetGeometry = new THREE.SphereGeometry(60, 16, 16);
+    const planetMaterial = new THREE.MeshBasicMaterial({ color: 0xff3333 });
+    const planet = new THREE.Mesh(planetGeometry, planetMaterial);
+    group.add(planet);
+
+    const satelliteGeometry = new THREE.SphereGeometry(10, 16, 16);
+    const satelliteMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+    const satellite = new THREE.Mesh(satelliteGeometry, satelliteMaterial);
+    satellite.position.y = 120;
+    group.add(satellite);
+
+    const ropeGeometry = new THREE.CylinderGeometry(1, 1, 1000);
+    const ropeMaterial = new THREE.MeshBasicMaterial({ color: 0xaaaaff });
+    const rope = new THREE.Mesh(ropeGeometry, ropeMaterial);
+    rope.position.y = 500;
+    group.add(rope);
+    return group;
+  };
+
+  const getCarpet = () => {
+    const carpetPoints = [
+      new THREE.Vector2(948, -1),
+      new THREE.Vector2(948, 2),
+      new THREE.Vector2(763, 2),
+      new THREE.Vector2(763, -1),
+      new THREE.Vector2(948, -1),
+    ];
+    const phiStart = 16 * (Math.PI / 180);
+    const phiLength = 58 * (Math.PI / 180);
+    const carpetGeometry = new THREE.LatheGeometry(carpetPoints, 36, phiStart, phiLength);
+    const carpetMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+
+    return  new THREE.Mesh(carpetGeometry, carpetMaterial);
+  };
+
+  const getRoad = () => {
+    const roadPoints = [
+      new THREE.Vector2(892, -1),
+      new THREE.Vector2(732, 2),
+      new THREE.Vector2(732, 2),
+      new THREE.Vector2(732, -1),
+    ];
+    const phiLength = 90 * (Math.PI / 180);
+    const roadGeometry = new THREE.LatheGeometry(roadPoints, 36, 0, phiLength);
+    const roadMaterial = new THREE.MeshBasicMaterial({ color: 0x999999 });
+
+    return new THREE.Mesh(roadGeometry, roadMaterial);
+  };
+
   const cameraZ = 1599;
   camera.position.z = cameraZ + 0.1;
   renderer.render(scene, camera);
@@ -301,6 +366,14 @@ const animationScreen = () => {
   const flamingo = svgElements().flamingo;
   const keyhole = svgElements().keyhole;
   const flower = svgElements().flower;
+  const saturnLamp = getSaturnLamp();
+  saturnLamp.position.set(60, 240, 100);
+  const carpet = getCarpet();
+  carpet.position.set(0, -340, -660);
+  carpet.rotation.y = (Math.PI / 180) * -45;
+  const road = getRoad();
+  road.position.set(0, -340, -660);
+  road.rotation.y = (Math.PI / 180) * -45;
   document.body.addEventListener(`screenChanged`, (e) => {
     const name = e.detail.screenName;
     while (scene.children.length > 0) {
@@ -313,6 +386,8 @@ const animationScreen = () => {
       material = materials[+slideActive];
       if (slideActive === 0) {
         scene.add(flower);
+        scene.add(saturnLamp);
+        scene.add(carpet);
       }
       if (slideActive === 2) {
         scene.add(pyramid);
@@ -320,6 +395,7 @@ const animationScreen = () => {
       }
       if (slideActive === 4) {
         scene.add(snowman);
+        scene.add(road);
       }
       const geometry = getPlaneLayer(material, window.innerHeight * 2, window.innerHeight);
       scene.add(geometry);
@@ -348,6 +424,7 @@ const animationScreen = () => {
     scene.add(light);
     if (slideActive === 0) {
       scene.add(flower);
+      scene.add(saturnLamp);
     }
     if (slideActive === 2) {
       scene.add(pyramid);
@@ -357,6 +434,7 @@ const animationScreen = () => {
     }
     if (slideActive === 4) {
       scene.add(snowman);
+      scene.add(road);
     }
   });
 };
